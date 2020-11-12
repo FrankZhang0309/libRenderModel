@@ -4,6 +4,7 @@
 
 #include "ModelRenderer.h"
 #include "Shader.h"
+#include <glm/gtx/string_cast.hpp>
 
 GLFWwindow* window;
 
@@ -50,7 +51,7 @@ ModelRenderer::ModelRenderer(string pathName, double scale, int width, int heigh
     m_idShader = new Shader("../shaders/id.vert", "../shaders/id.frag");
 
     m_projectionMatrix = glm::perspective(m_fov, double(m_width) / m_height , m_zNear, m_zFar);
-    cout << m_projectionMatrix[0][0] << " " << m_projectionMatrix[1][1] << endl;
+    // cout << glm::to_string(m_projectionMatrix) << endl;
     vec3 position = vec3(2,0,0);
     m_viewMatrix = glm::lookAt(position + m_center,  m_center, vec3(0,1,0));
     m_modelMatrix = glm::mat4(1.0f);
@@ -115,12 +116,13 @@ void ModelRenderer::setProjMatrixFromIntrinsic(glm::mat3 projMatrix, int width, 
 
     projection_matrix[1][1] = 2*f_y/height;
 
-    projection_matrix[2][0] = 2*c_x/width+1;
-    projection_matrix[2][1] = 2*c_y/height+1;
+    projection_matrix[2][0] = -2*c_x/width+1;
+    projection_matrix[2][1] = -2*c_y/height+1;
     projection_matrix[2][2] = -(far_plane + near_plane)/(far_plane - near_plane);
     projection_matrix[3][2] = -2.0f*far_plane*near_plane/(far_plane - near_plane);
     projection_matrix[2][3] = -1.0f;
 
+    // cout << glm::to_string(projection_matrix) << endl;
     m_projectionMatrix = projection_matrix;
 }
 
@@ -132,7 +134,7 @@ cv::Mat ModelRenderer::color(){
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TEXTURE, 0);
     glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER,RBO);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_defaultShader->use();
@@ -253,6 +255,7 @@ cv::Mat ModelRenderer::depth(){
 
     threshold(depth, depth, 0.99999, 0, CV_THRESH_TOZERO_INV);
     depth = recoverDepthFromClippedSpace(depth, m_zNear, m_zFar);
+    depth = depth/m_zFar;
 //    threshold(depth, depth, m_zNear+0.0001, 0, CV_THRESH_TOZERO);
     cv::flip(depth,depth,0);
 
