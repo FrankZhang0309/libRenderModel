@@ -51,7 +51,7 @@ ModelRenderer::ModelRenderer(string pathName, double scale, int width, int heigh
     m_idShader = new Shader("../shaders/id.vert", "../shaders/id.frag");
 
     m_projectionMatrix = glm::perspective(m_fov, double(m_width) / m_height , m_zNear, m_zFar);
-    cout << glm::to_string(m_projectionMatrix) << endl;
+    // cout << glm::to_string(m_projectionMatrix) << endl;
     vec3 position = vec3(2,0,0);
     m_viewMatrix = glm::lookAt(position + m_center,  m_center, vec3(0,1,0));
     m_modelMatrix = glm::mat4(1.0f);
@@ -109,11 +109,6 @@ void ModelRenderer::setProjMatrixFromIntrinsic(glm::mat3 projMatrix, int width, 
 
     float c_x = projMatrix[2][0];
     float c_y = projMatrix[2][1];
-    std::cout<< f_x << std::endl;
-    std::cout<< f_y << std::endl;
-    std::cout<< c_y << std::endl;
-
-    std::cout<< c_x << std::endl;
 
     glm::mat4 projection_matrix(0.0f);
 
@@ -121,13 +116,13 @@ void ModelRenderer::setProjMatrixFromIntrinsic(glm::mat3 projMatrix, int width, 
 
     projection_matrix[1][1] = 2*f_y/height;
 
-    projection_matrix[2][0] = 2*c_x/width-1;
-    projection_matrix[2][1] = 2*c_y/height-1;
+    projection_matrix[2][0] = -2*c_x/width+1;
+    projection_matrix[2][1] = -2*c_y/height+1;
     projection_matrix[2][2] = -(far_plane + near_plane)/(far_plane - near_plane);
     projection_matrix[3][2] = -2.0f*far_plane*near_plane/(far_plane - near_plane);
     projection_matrix[2][3] = -1.0f;
 
-    cout << glm::to_string(projection_matrix) << endl;
+    // cout << glm::to_string(projection_matrix) << endl;
     m_projectionMatrix = projection_matrix;
 }
 
